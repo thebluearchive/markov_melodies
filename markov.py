@@ -21,6 +21,21 @@ class Markov:
 			next_ind = self.states[next_state]
 			return self.trans_matrix[cur_ind, next_ind]
 
+	def set_markov_matrix(self, new_states, matrix):
+		"""
+		matrix : a numpy matrix with shape
+		(len(new_states), len(new_states))
+		new_states : a list of states whose indices correspond
+		to the rows and columns of the markov matrix.
+		states must be a non-repeating list
+		"""
+		for i, state in enumerate(new_states):
+			self.states[state] = i
+			self.ind_dict[i] = state
+		self.trans_matrix = matrix
+		self.num_states = len(self.states)
+		self.shape = (self.num_states, self.num_states)
+
 	def set_sampled_matrix(self, arr):
 		"""
 		Given an array of indices (states), populates
@@ -48,7 +63,6 @@ class Markov:
 		sum_rows = count.sum(axis = 1, keepdims = True)
 		sum_rows[sum_rows == 0] = 1
 		self.trans_matrix = count/sum_rows
-		# self.trans_matrix[0] = 0	#bad things happen with duration of 0
 
 	def simulate_markov_process(self, k, start_state = None):
 		"""
@@ -58,11 +72,11 @@ class Markov:
 		self.states
 		"""
 		if start_state is None:
-			start_ind = np.argmax(self.trans_matrix.sum(axis = 1)) #pick the lowest column with nonzero entires as the start
+			#pick the lowest column with nonzero entires as the start
+			start_ind = np.argmax(self.trans_matrix.sum(axis = 1))
 		else:
 			start_ind = self.states[start_state]
 
-		# print("start_ind", start_ind)
 		ind_list = [start_ind, ]	# list of indices representing states
 		cur_ind = start_ind
 		for i in range(k):
@@ -74,27 +88,39 @@ class Markov:
 			ind_list += [next_ind]
 			cur_ind = next_ind
 
-		# print("self.states =", self.states)
-		# print("ind_list =", ind_list)
-		# print("ind_dict =", self.ind_dict)
 		return [self.ind_dict[ind] for ind in ind_list]
+
+
+def set_sampled_matrix_test():
+	m = np.array([[1/3, 1/3, 0, 1/3],
+				  [1/2, 0, 1/4, 1/4],
+				  [1/4, 1/4, 0, 1/2],
+				  [1, 0, 0, 0]])
+	states = [1, 3, 5, 7]
+	markov = Markov()
+	markov.set_markov_matrix(states, m)
+	print(markov.simulate_markov_process(10))
 
 
 if __name__ == '__main__':
 	###
 	### Below, we test the above Markov implementation
 	###
-	sequence = [1, 2, 3, 4, 1, 1, 2, 2, 4, 3, 4, 3]
-	markov = Markov()  # create a represenation with 5 states
-	markov.set_sampled_matrix(sequence)
-	expected_matrix = np.array([[1/3, 2/3, 0, 0],
-								[0, 1/3, 1/3, 1/3],
-								[0, 0, 0, 2/2],
-								[1/3, 0, 2/3, 0]])
-	print(markov.trans_matrix)
-	print(expected_matrix)
+	# sequence = [1, 2, 3, 4, 1, 1, 2, 2, 4, 3, 4, 3]
+	# markov = Markov()  # create a represenation with 5 states
+	# markov.set_sampled_matrix(sequence)
+	# expected_matrix = np.array([[1/3, 2/3, 0, 0],
+	# 							[0, 1/3, 1/3, 1/3],
+	# 							[0, 0, 0, 2/2],
+	# 							[1/3, 0, 2/3, 0]])
+	# print(markov.trans_matrix)
+	# print(expected_matrix)
 
-	print(markov.get_trans_prob(1, 4))
-	print(markov.get_trans_prob(2, 4))
+	# print(markov.get_trans_prob(1, 4))
+	# print(markov.get_trans_prob(2, 4))
 
-	print(markov.simulate_markov_process(10))
+	# print(markov.simulate_markov_process(10))
+
+	# set_sampled_matrix_test()
+
+
