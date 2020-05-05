@@ -14,9 +14,7 @@ def main(file_path, sim_length, dest_path):
 	note_seq = reader.get_note_sequence()
 	dur_seq = reader.get_duration_sequence()
 
-	note_markov, dur_markov = Markov(120), Markov(40)
-	# print("note_seq =", note_seq)
-	# print("dur_seq =", dur_seq)
+	note_markov, dur_markov = Markov(), Markov()
 	note_markov.set_sampled_matrix(note_seq)
 	dur_markov.set_sampled_matrix(dur_seq)
 	sim_notes = note_markov.simulate_markov_process(sim_length)
@@ -24,11 +22,9 @@ def main(file_path, sim_length, dest_path):
 
 	creator = Midi_Creator()
 	creator.create_mid(sim_notes, sim_durs)
-	# print("sim_notes", sim_notes)
-	# print("sim_durs", sim_durs)
 	creator.save(dest_path)
 
 
 if __name__ == '__main__':
-	main('midi_training_data/telemann_fantasia.mid', 50, 'new_midi.mid')
+	main('midi_training_data/telemann_fantasia.mid', 500, 'new_midi.mid')
 	print("Job Completed")
